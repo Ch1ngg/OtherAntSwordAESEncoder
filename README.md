@@ -1,5 +1,5 @@
 # SelfAntSwordEncoder
-> 自用蚁剑编码器
+> 自用蚁剑DES编/解码器
 
 ## 支持类型
 1. PHP(已完成，不依赖OPENSSL进行加解密)
