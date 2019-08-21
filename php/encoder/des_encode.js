@@ -1,5 +1,5 @@
 /**
- * php::base64编码器
+ * php::DES编码器
  * Create at: 2019/08/21 21:09:04
  * 
  * webshell：
