@@ -1,4 +1,4 @@
-# SelfAntSwordEncoder
+# SelfAntSwordDESEncoder
 > 自用蚁剑DES编/解码器
 
 ## 支持类型
