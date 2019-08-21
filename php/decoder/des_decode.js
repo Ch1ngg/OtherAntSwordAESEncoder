@@ -1,5 +1,5 @@
 /**
- * php::base64解码器
+ * php::DES解码器
  * Create at: 2019/08/21 21:09:16
  */
 
@@ -47,7 +47,7 @@ function decryptByDES(key,ciphertext) {
 
 module.exports = {
   /**
-   * @returns {string} asenc 将返回数据base64编码
+   * @returns {string} asenc 将返回数据DES编码
    * 自定义输出函数名称必须为 asenc
    * 该函数使用的语法需要和shell保持一致
    */
