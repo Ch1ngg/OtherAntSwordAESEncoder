@@ -1,4 +1,4 @@
-# SelfAntSwordAESEncoder
+# OtherAntSwordAESEncoder
 > 蚁剑 CUSTOM AES编/解码器,弥补蚁剑其他 Shell 没有强加密算法的缺陷。
 >
 > 原项目地址：https://github.com/Ch1ngg/CaidaoMitmProxy
