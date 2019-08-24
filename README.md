@@ -1,15 +1,11 @@
-# SelfAntSwordDESEncoder
-> 自用蚁剑DES编/解码器
+# SelfAntSwordAESEncoder
+> 蚁剑 CUSTOM AES编/解码器,弥补蚁剑其他 Shell 没有强加密算法的缺陷。
 >
 > 原项目地址：https://github.com/Ch1ngg/CaidaoMitmProxy
 
 ## 支持类型
-1. PHP(已完成，不依赖OPENSSL进行加解密)
-2. CUSTOM
-   1. ASPX(已完成)
-   2. JSP(正在开发)
-   3. JSPX(正在开发)
-3. ASP(暂无开发念头)
+1. ASPX
+2. JSP
 
 ## 如何使用
 
