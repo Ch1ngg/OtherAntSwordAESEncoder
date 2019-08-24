@@ -25,28 +25,30 @@ function get_cookie(Name, CookieStr="") {
 }
 
 
-function encryptByDES(key,message) {
-  var keyHex = CryptoJS.enc.Utf8.parse(key);      
-  var encrypted = CryptoJS.DES.encrypt(message, keyHex, {
-      mode: CryptoJS.mode.ECB,
-      padding: CryptoJS.pad.Pkcs7
-  });
-  return encrypted.toString();
+function decryptText(keyStr, text) {
+  let buff = Buffer.alloc(16, 'a');
+  buff.write(keyStr,0);
+  keyStr = buff.toString();
+  let decodetext = CryptoJS.AES.decrypt(text, CryptoJS.enc.Utf8.parse(keyStr), {
+    iv: CryptoJS.enc.Utf8.parse(keyStr),
+    mode: CryptoJS.mode.CFB,
+    padding: CryptoJS.pad.ZeroPadding
+  }).toString(CryptoJS.enc.Utf8)
+  console.log(decodetext);
+  return decodetext;
 }
 
-function decryptByDES(key,ciphertext) {        
-  var keyHex = CryptoJS.enc.Utf8.parse(key);      
-  var decrypted = CryptoJS.DES.decrypt({
-      ciphertext: CryptoJS.enc.Base64.parse(ciphertext)
-  }, keyHex, {
-      mode: CryptoJS.mode.ECB,
-      padding: CryptoJS.pad.Pkcs7
-  });
-
-  return decrypted.toString(CryptoJS.enc.Utf8);
+function encryptText(keyStr, text) {
+  let buff = Buffer.alloc(16, 'a');
+  buff.write(keyStr,0);
+  keyStr = buff.toString();
+  let encodetext = CryptoJS.AES.encrypt(text, CryptoJS.enc.Utf8.parse(keyStr), {
+    iv: CryptoJS.enc.Utf8.parse(keyStr),
+    mode: CryptoJS.mode.CFB,
+    padding: CryptoJS.pad.ZeroPadding,
+  }).toString()
+  return encodetext;
 }
-
-
 
 module.exports = {
   /**
@@ -71,9 +73,10 @@ module.exports = {
     let session_key = "CUSTOMSESSID";
     let keyStr = get_cookie(session_key, headers['Cookie']);
     if(keyStr.length === 0) {
-      window.toastr.error("未在 Cookie 中发现CUSTOMSESSID, 请设置8位以上的随机字符", "错误");
+      window.toastr.error("未在 Cookie 中发现CUSTOMSESSID", "错误");
       return data;
     }
-    return decryptByDES(keyStr.substr(0,8),Buffer.from(data).toString());
+
+    return decryptText(keyStr, Buffer.from(data).toString());
   }
 }

