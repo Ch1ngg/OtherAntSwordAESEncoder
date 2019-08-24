@@ -22,6 +22,23 @@
 
 ![](http://as.xuanbo.cc/doc/settings/encoder_edit_1.png)
 
+
+## BUG
+
+1. CUSTOM 脚本使用 AES 加解密且中文乱码官方暂时无解决方案，可使用临时修复方法。
+
+## 临时修复方法
+
+> 1. 在 \source\core\base.js 284行下方增加一行代码
+
+```js
+          if(!(buff instanceof Uint8Array)){
+              text = buff;
+          }
+```
+
+![](./CUSTOM/pic/1566653797328.png)
+
 ## 注意事项
 
 * 某些编码器仅适用于某一特定 Shell, 在使用前可查看代码中注释部分，如无特殊说明则表示通用
