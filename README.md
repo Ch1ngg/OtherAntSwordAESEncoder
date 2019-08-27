@@ -7,6 +7,7 @@
 1. ASPX
 2. JSP
 3. JSPX
+4. PHP(DES)
 
 ## 如何使用
 
@@ -32,7 +33,7 @@
 > 1. 在 \source\core\base.js 284行下方增加一行代码
 
 ```js
-          if(!(buff instanceof Uint8Array)){
+          if(this.__opts__['type'] == "custom"){
               text = buff;
           }
 ```
