@@ -1,12 +1,16 @@
 # OtherAntSwordAESEncoder
-> 蚁剑 CUSTOM AES编/解码器,弥补蚁剑其他 Shell 没有强加密算法的缺陷。
+> ~~蚁剑 CUSTOM AES编/解码器,弥补蚁剑其他 Shell 没有强加密算法的缺陷。~~
+>
+> 蚁剑今把本项目的编码/解码器已更新到蚁剑项目的 CUSTOM ，本项目的DES还是可以用喔
+>
+> 详情：https://github.com/AntSwordProject/AwesomeEncoder/tree/master/custom
 >
 > 原项目地址：https://github.com/Ch1ngg/CaidaoMitmProxy
 
 ## 支持类型
-1. ASPX
-2. JSP
-3. JSPX
+1. ~~ASPX~~
+2. ~~JSP~~
+3. ~~JSPX~~
 4. PHP(DES)
 
 ## 如何使用
@@ -23,23 +27,6 @@
 
 ![](http://as.xuanbo.cc/doc/settings/encoder_edit_1.png)
 
-
-## BUG
-
-1. CUSTOM 脚本使用 AES 加解密且中文乱码官方暂时无解决方案，可使用临时修复方法。
-
-## 临时修复方法
-
-> 1. 在 \source\core\base.js 284行下方增加一行代码
-
-```js
-if(this.__opts__['type'] == "custom" && !(buff instanceof Uint8Array)){
-          text = buff;
-}
-```
-
-![](./CUSTOM/pic/1566653797328.png)
-
 ## 注意事项
 
 * 某些编码器仅适用于某一特定 Shell, 在使用前可查看代码中注释部分或者同级目录是否有Shell目录，如无特殊说明则表示通用
@@ -53,8 +40,4 @@ if(this.__opts__['type'] == "custom" && !(buff instanceof Uint8Array)){
 
 [LICENSE](./LICENSE)
 ## 法律
-<<<<<<< HEAD
-该项目仅供学习和测试，请各位遵守《中华人民共和国网络安全法》。禁止使用该项目进行违法操作，一切违法操作本人不承担任何法律责任！
-=======
-该项目仅供学习和测试，请各位遵守《中华人民共和国网络安全法》。禁止使用该项目进行违法操作，一切违法操作本人不承担任何法律责任！
->>>>>>> 4f819336fcd52046a9cce9b5069874a06af4d02d
+> 该项目仅供学习和测试，请各位遵守《中华人民共和国网络安全法》。禁止使用该项目进行违法操作，一切违法操作本人不承担任何法律责任！
