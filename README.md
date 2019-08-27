@@ -33,16 +33,16 @@
 > 1. 在 \source\core\base.js 284行下方增加一行代码
 
 ```js
-          if(this.__opts__['type'] == "custom"){
-              text = buff;
-          }
+if(this.__opts__['type'] == "custom" && !(buff instanceof Uint8Array)){
+          text = buff;
+}
 ```
 
 ![](./CUSTOM/pic/1566653797328.png)
 
 ## 注意事项
 
-* 某些编码器仅适用于某一特定 Shell, 在使用前可查看代码中注释部分，如无特殊说明则表示通用
+* 某些编码器仅适用于某一特定 Shell, 在使用前可查看代码中注释部分或者同级目录是否有Shell目录，如无特殊说明则表示通用
 
 ## 感谢
 > 感谢AntSword这个伟大的项目
@@ -52,3 +52,5 @@
 ## LICENSE
 
 [LICENSE](./LICENSE)
+## 法律
+该项目仅供学习和测试，请各位遵守《中华人民共和国网络安全法》。禁止使用该项目进行违法操作，一切违法操作本人不承担任何法律责任！
