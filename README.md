@@ -1,7 +1,7 @@
 # OtherAntSwordAESEncoder
 > ~~蚁剑 CUSTOM AES编/解码器,弥补蚁剑其他 Shell 没有强加密算法的缺陷。~~
 >
-> 蚁剑今把本项目的编码/解码器以及 Shell 已更新到蚁剑项目的 CUSTOM 。
+> 蚁剑今把本项目的编码/解码器以及 Shell 已更新到蚁剑项目的 AwesomeEncoder 和 AwesomeScript。
 >
 > 编码/解码器详情：https://github.com/AntSwordProject/AwesomeEncoder/tree/master/custom
 >
